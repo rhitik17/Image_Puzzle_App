@@ -1,19 +1,25 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Auth from './components/Auth';
+import Puzzle from './components/Puzzle'; 
+import ProtectedRoute from './components/ProtectedRoute';
 
-function App() {
-  const [count, setCount] = useState(0);
-
+const App: React.FC = () => {
   return (
-    <>
-      <div>
-       
-      </div>
-      
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Auth />} />
+        <Route
+          path="/puzzle"
+          element={
+            <ProtectedRoute>
+              <Puzzle />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;
