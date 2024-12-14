@@ -1,63 +1,117 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const Puzzle: React.FC = () => {
-  const [gridSize, setGridSize] = useState(2);
+  const [gridSize, setGridSize] = useState(3);  // Set initial grid size (e.g., 3x3)
+  const [image, setImage] = useState(""); // Random image
+  const [shuffledPieces, setShuffledPieces] = useState<number[]>([]);
+  const [correctPositions, setCorrectPositions] = useState<number[]>([]);
+  const imagesArray = ["/part1.jpg"]; // Add your image URLs here
 
-  const images = Array.from(
-    { length: gridSize * gridSize },
-    (_, i) => `/part${i + 1}.jpg`
-  );
+ 
+  //to generate the required pieces
+  const generatePieces = (size: number) => Array.from({ length: size * size }, (_, i) => i);
+
+//to shuffle the pieces randomly
+  const shufflePieces = (pieces: number[]) => {
+    let shuffled = [...pieces];
+
+      shuffled = shuffled.sort(() => Math.random() - 0.5);
+   
+    return shuffled;
+  };
+
+ 
+
+  useEffect(() => {
+    const pieces = generatePieces(gridSize);
+    setCorrectPositions(pieces);  
+    setShuffledPieces(shufflePieces(pieces));  
+    setImage(imagesArray[Math.floor(Math.random() * imagesArray.length)]); 
+  }, [gridSize]);
+
+
+  //for drag and drop the pieces
+  const handleDragStart = (index: number, event: React.DragEvent) => {
+    event.dataTransfer.setData("pieceIndex", index.toString());
+  };
+
+  const handleDrop = (index: number, event: React.DragEvent) => {
+    event.preventDefault();
+    const draggedIndex = parseInt(event.dataTransfer.getData("pieceIndex"));
+    const updatedPieces = [...shuffledPieces];
+    [updatedPieces[index], updatedPieces[draggedIndex]] = [
+      updatedPieces[draggedIndex],
+      updatedPieces[index],
+    ];
+    setShuffledPieces(updatedPieces);
+  };
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+  };
+
+
+
+  // to calculate background position for each piece
+  const getBackgroundPosition = (index: number, size: number) => {
+    const row = Math.floor(index / size);
+    const col = index % size;
+    return `${(col * 100) / (size - 1)}% ${(row * 100) / (size - 1)}%`;
+  };
 
   return (
-    <div className="w-full flex flex-col items-center justify-center space-y-6 min-h-screen md:bg-gradient-to-r from-blue-900 to-cyan-800 via-gray-800 px-6import React, { useState } from ">
-      <h1 className="text-2xl font-bold mb-4 text-white/90">Puzzle Game</h1>
+    <div className="w-full flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-900 to-cyan-800 px-6">
+      <h1 className="text-2xl font-bold text-white mb-4">Dynamic Puzzle Game</h1>
 
-      {/* Grid size selection section */}
+      {/* Grid size selector */}
       <div className="mb-4">
-        <label htmlFor="gridSize" className="mr-2 font-medium text-white/60">
+        <label htmlFor="gridSize" className="mr-2 text-white">
           Select Grid Size:
         </label>
         <select
           id="gridSize"
           value={gridSize}
           onChange={(e) => setGridSize(Number(e.target.value))}
-          className="border rounded px-1 bg-cyan-900 text-white"
+          className="border rounded px-2 bg-gray-800 text-white"
         >
-          <option value={2}>2 x 2</option>
-          <option value={3}>3 x 3</option>
-          <option value={4}>4 x 4</option>
-          <option value={5}>5 x 5</option>
-          <option value={6}>6 x 6</option>
-          <option value={7}>7 x 7</option>
-          <option value={8}>8 x 8</option>
-          <option value={9}>9 x 9</option>
-          <option value={10}>10 x 10</option>
-          <option value={11}>11 x 11</option>
-          <option value={12}>12 x 12</option>
+          {[...Array(11).keys()].map((_, i) => (
+            <option key={i + 2} value={i + 2}>
+              {i + 2} x {i + 2}
+            </option>
+          ))}
         </select>
       </div>
 
-      {/* Puzzle grid section */}
+      {/* Puzzle grid */}
       <div
-        className={`grid }`}
+        className="grid gap-1"
         style={{
           gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
           gridTemplateRows: `repeat(${gridSize}, 1fr)`,
+          width: "500px",
+          height: "500px",
         }}
       >
-        {images.map((img, index) => (
+        {shuffledPieces.map((piece, index) => (
           <div
             key={index}
-            className="border border-gray-300 flex items-center justify-center"
-          >
-            <img
-              src={img}
-              alt={`${index + 1}`}
-              className="w-full h-full object-cover"
-            />
-          </div>
+            draggable
+            onDragStart={(e) => handleDragStart(index, e)}
+            onDrop={(e) => handleDrop(index, e)}
+            onDragOver={handleDragOver}
+            className={`border ${correctPositions[index] === piece ? "border-2 border-green-500" : " border-2 border-red-500"}`}
+            style={{
+              width: `${500 / gridSize}px`,
+              height: `${500 / gridSize}px`,
+              backgroundImage: `url(${image})`,
+              backgroundPosition: getBackgroundPosition(piece, gridSize),
+              backgroundSize: `${gridSize * 100}%`,
+            }}
+          ></div>
         ))}
       </div>
+
+    
     </div>
   );
 };
