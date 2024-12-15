@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 
 const Puzzle: React.FC = () => {
-  const [gridSize, setGridSize] = useState(3); // Set initial grid size (e.g., 3x3)
-  const [image, setImage] = useState(""); // Random image
+  const [gridSize, setGridSize] = useState(3); 
+  const [image, setImage] = useState(""); 
   const [shuffledPieces, setShuffledPieces] = useState<number[]>([]);
   const [correctPositions, setCorrectPositions] = useState<number[]>([]);
-  const imagesArray = ["/part1.jpg"]; // Add your image URLs here
+  const imagesArray = ["/part1.jpg"]; 
 
   //to generate the required pieces
   const generatePieces = (size: number) =>
@@ -71,6 +71,10 @@ const Puzzle: React.FC = () => {
     return `${(col * 100) / (size - 1)}% ${(row * 100) / (size - 1)}%`;
   };
 
+   //to check if the puzzle is solved
+   const isSolved = () => JSON.stringify(shuffledPieces) === JSON.stringify(correctPositions);
+
+
   return (
     <div className="w-full flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-900 to-cyan-800 px-6">
       <h1 className="text-2xl font-bold text-white mb-4">
@@ -128,6 +132,14 @@ const Puzzle: React.FC = () => {
           ></div>
         ))}
       </div>
+
+      {/* if the puzzle is complete */}
+      {isSolved() && (
+        <div className="mt-4 p-2 bg-green-600 text-white font-bold rounded">
+          Puzzle Completed!
+        </div>
+      )}
+
     </div>
   );
 };
