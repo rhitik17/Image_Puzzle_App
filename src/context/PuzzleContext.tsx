@@ -8,10 +8,13 @@ interface PuzzlecontextType {
   score: number;
   timer: number;
   level: number;
+  feedback: string;
+  incorrectMoves: number;
   setGridSize: (size: number) => void;
   setShuffledPieces: (pieces: number[]) => void;
   isSolved: () => Boolean;
   resetPuzzle: () => void;
+  handleMove: (index1: number, index2: number) => void;
 }
 
 const PuzzleContext = createContext<PuzzlecontextType | undefined>(undefined);
@@ -19,14 +22,16 @@ const PuzzleContext = createContext<PuzzlecontextType | undefined>(undefined);
 export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [gridSize, setGridSize] = useState(3);
+  const [gridSize, setGridSize] = useState(2);
   const [image, setImage] = useState("");
   const [shuffledPieces, setShuffledPieces] = useState<number[]>([]);
   const [correctPositions, setCorrectPositions] = useState<number[]>([]);
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(60);
   const [level, setLevel] = useState(1);
-  const imagesArray = ["/part1.jpg"];
+  const [feedback, setFeedback] = useState("");
+  const [incorrectMoves, setIncorrectMoves] = useState(0);
+  const imagesArray = ["/image1.jpg", "/image2.jpg"];
 
   //to generate the required pieces
   const generatePieces = (size: number) =>
@@ -62,18 +67,27 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
     const pieces = generatePieces(gridSize);
     setCorrectPositions(pieces);
     const shuffled = shufflePieces(pieces);
-    setImage(imagesArray[Math.floor(Math.random() * imagesArray.length)]);
+    setImage(imagesArray[level % imagesArray.length]);
     setScore(0);
-    setTimer(60);
-    setLevel(1);
+    setTimer(60 - level * 10);
+    setLevel((prev) => prev + 1);
+    setFeedback("");
     setShuffledPieces(shuffled);
+    setIncorrectMoves(0);
 
-    console.log(shuffled); //displays
-    console.log(pieces); //displays
+    // console.log(shuffled); //displays
+    // console.log(pieces); //displays
 
     localStorage.setItem(
       "puzzleData",
-      JSON.stringify({ gridSize, shuffledPieces: shuffled, score, level })
+      JSON.stringify({
+        gridSize,
+        shuffledPieces: shuffled,
+        score,
+        level,
+        incorrectMoves,
+        correctPositions,
+      })
     );
   };
 
@@ -85,8 +99,89 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
   const isSolved = () =>
     JSON.stringify(shuffledPieces) === JSON.stringify(correctPositions);
 
+  //function to handle the move of pieces
+  const handleMove = (index1: number, index2: number) => {
+    const updatedPieces = [...shuffledPieces];
+    [updatedPieces[index1], updatedPieces[index2]] = [
+      updatedPieces[index2],
+      updatedPieces[index1],
+    ];
+
+    // to determine if the swapped pieces are now in correct positions
+    const wasPiece1CorrectBefore =
+      correctPositions[index1] === shuffledPieces[index1];
+    const wasPiece2CorrectBefore =
+      correctPositions[index2] === shuffledPieces[index2];
+    const isPiece1NowCorrect =
+      correctPositions[index1] === updatedPieces[index1];
+    const isPiece2NowCorrect =
+      correctPositions[index2] === updatedPieces[index2];
+
+    if (
+     ( !wasPiece1CorrectBefore &&
+      !isPiece1NowCorrect) &&
+    (  !wasPiece2CorrectBefore &&
+      !isPiece2NowCorrect)
+    ) {
+      setIncorrectMoves((prev) => prev + 1);
+    }
+
+    setShuffledPieces(updatedPieces);
+
+    //to check if the puzzle is solved
+    if (isSolved()) {
+      let completionTime = 60 - timer;
+      let maxTime = 60;
+
+      if (completionTime <= maxTime * 0.3 && incorrectMoves === 0) {
+        setFeedback("Excellent!");
+        setScore((prev) => prev + 200);
+      } else if (completionTime <= maxTime * 0.5 && incorrectMoves <= 3) {
+        setFeedback("Good job!");
+        setScore((prev) => prev + 150);
+      } else if (completionTime <= maxTime * 0.99 && incorrectMoves <= 6) {
+        setFeedback("Well done!");
+        setScore((prev) => prev + 100);
+      } else {
+        setFeedback("Please Try Again");
+        setScore((prev) => prev - 50);
+      }
+
+      setLevel((prev) => prev + 1);
+      resetPuzzle();
+    }
+
+    // Save updated state to local storage
+    localStorage.setItem(
+      "puzzleData",
+      JSON.stringify({
+        gridSize,
+        shuffledPieces: updatedPieces,
+        score,
+        level,
+        incorrectMoves,
+        correctPositions,
+      })
+    );
+  };
+
+  const startTimer = () => {
+    if (timer > 0) {
+      if (!isSolved()) {
+        setTimeout(() => setTimer(timer - 1), 1000);
+      }
+    } else {
+      setFeedback("Please Try Again");
+    }
+  };
+
+  useEffect(() => {
+    startTimer();
+  }, [timer]);
+
   //get data from localStorage
   useEffect(() => {
+    // localStorage.clear();
     const storedData = localStorage.getItem("puzzleData");
     if (storedData) {
       const data = JSON.parse(storedData);
@@ -94,6 +189,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
       setShuffledPieces(data.shuffledPieces);
       setScore(data.score);
       setLevel(data.level);
+      console.log("shuffled Pieces:", data.shuffledPieces);
     } else {
       resetPuzzle();
     }
@@ -113,6 +209,9 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
         setShuffledPieces,
         isSolved,
         resetPuzzle,
+        handleMove,
+        feedback,
+        incorrectMoves,
       }}
     >
       {children}

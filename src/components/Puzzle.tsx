@@ -13,6 +13,9 @@ const Puzzle: React.FC = () => {
     setGridSize,
     setShuffledPieces,
     isSolved,
+    handleMove,
+    resetPuzzle,
+    feedback,
   } = usePuzzleData();
 
   //for drag and drop the pieces
@@ -23,12 +26,7 @@ const Puzzle: React.FC = () => {
   const handleDrop = (index: number, event: React.DragEvent) => {
     event.preventDefault();
     const draggedIndex = parseInt(event.dataTransfer.getData("pieceIndex"));
-    const updatedPieces = [...shuffledPieces];
-    [updatedPieces[index], updatedPieces[draggedIndex]] = [
-      updatedPieces[draggedIndex],
-      updatedPieces[index],
-    ];
-    setShuffledPieces(updatedPieces);
+    handleMove(draggedIndex, index);
   };
 
   const handleDragOver = (event: React.DragEvent) => {
@@ -114,6 +112,12 @@ const Puzzle: React.FC = () => {
         {isSolved() && (
           <div className="mt-4 p-2 bg-green-600 text-white font-bold rounded">
             Puzzle Completed!
+          </div>
+        )}
+
+        {feedback && (
+          <div className="mt-4 p-2 bg-green-600 text-white font-bold rounded" onClick={resetPuzzle}>
+            {feedback}
           </div>
         )}
       </div>
