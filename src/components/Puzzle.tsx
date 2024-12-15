@@ -116,7 +116,7 @@ const Puzzle: React.FC = () => {
         )}
 
         {feedback && (
-          <div className="mt-4 p-2 bg-green-600 text-white font-bold rounded" onClick={resetPuzzle}>
+          <div className="mt-4 p-2 bg-green-600 text-white font-bold rounded cursor-pointer" onClick={resetPuzzle}>
             {feedback}
           </div>
         )}
