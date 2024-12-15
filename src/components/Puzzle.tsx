@@ -1,48 +1,23 @@
 import React, { useState, useEffect } from "react";
+import { usePuzzleData } from "../context/PuzzleContext";
 
 const Puzzle: React.FC = () => {
-  const [gridSize, setGridSize] = useState(3); 
-  const [image, setImage] = useState(""); 
-  const [shuffledPieces, setShuffledPieces] = useState<number[]>([]);
-  const [correctPositions, setCorrectPositions] = useState<number[]>([]);
-  const imagesArray = ["/part1.jpg"]; 
 
-  //to generate the required pieces
-  const generatePieces = (size: number) =>
-    Array.from({ length: size * size }, (_, i) => i+1);
+  const {
+    gridSize,
+    shuffledPieces,
+    correctPositions,
+    image,
+    setGridSize,
+    setShuffledPieces,
+    isSolved,
+  } = usePuzzleData();
 
-  //to shuffle the pieces randomly
-  const shufflePieces = (pieces: number[]) => {
-    let shuffled = [...pieces];
-    do {
-      shuffled = shuffled.sort(() => Math.random() - 0.5);
-    } while (isSolvable(shuffled, gridSize));
 
-    return shuffled;
-  };
 
-  // to check if the puzzle is solvable 
-  const isSolvable = (pieces: number[], size: number) => {
-    let inversions = 0;
-    for (let i = 0; i < pieces.length; i++) {
-      for (let j = i + 1; j < pieces.length; j++) {
-        if (pieces[i] > pieces[j] && pieces[i] !== 0 && pieces[j] !== 0)
-          inversions++;
-      }
-    }
-    if (size % 2 === 0) {
-      const rowFromBottom = Math.floor(pieces.indexOf(0) / size) + 1;
-      return (rowFromBottom % 2 === 0) === (inversions % 2 === 0);
-    }
-    return inversions % 2 === 0;
-  };
 
-  useEffect(() => {
-    const pieces = generatePieces(gridSize);
-    setCorrectPositions(pieces);
-    setShuffledPieces(shufflePieces(pieces));
-    setImage(imagesArray[Math.floor(Math.random() * imagesArray.length)]);
-  }, [gridSize]);
+
+ 
 
   //for drag and drop the pieces
   const handleDragStart = (index: number, event: React.DragEvent) => {
@@ -71,10 +46,7 @@ const Puzzle: React.FC = () => {
     return `${(col * 100) / (size - 1)}% ${(row * 100) / (size - 1)}%`;
   };
 
-    //to check if the puzzle is solved
-    const isSolved = () => JSON.stringify(shuffledPieces) === JSON.stringify(correctPositions);
-
-
+  
 
   return (
     <div className="w-full flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-900 to-cyan-800 px-6">

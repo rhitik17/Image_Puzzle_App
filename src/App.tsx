@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Auth from './components/Auth';
 import Puzzle from './components/Puzzle'; 
 import ProtectedRoute from './components/ProtectedRoute';
+import { PuzzleProvider } from './context/PuzzleContext';
 
 const App: React.FC = () => {
   return (
@@ -13,7 +14,10 @@ const App: React.FC = () => {
           path="/puzzle"
           element={
             <ProtectedRoute>
+              <PuzzleProvider>
+
               <Puzzle />
+              </PuzzleProvider>
             </ProtectedRoute>
           }
         />
