@@ -9,7 +9,7 @@ const Puzzle: React.FC = () => {
 
   //to generate the required pieces
   const generatePieces = (size: number) =>
-    Array.from({ length: size * size }, (_, i) => i);
+    Array.from({ length: size * size }, (_, i) => i+1);
 
   //to shuffle the pieces randomly
   const shufflePieces = (pieces: number[]) => {
@@ -71,6 +71,11 @@ const Puzzle: React.FC = () => {
     return `${(col * 100) / (size - 1)}% ${(row * 100) / (size - 1)}%`;
   };
 
+    //to check if the puzzle is solved
+    const isSolved = () => JSON.stringify(shuffledPieces) === JSON.stringify(correctPositions);
+
+
+
   return (
     <div className="w-full flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-900 to-cyan-800 px-6">
       <h1 className="text-2xl font-bold text-white mb-4">
@@ -128,6 +133,14 @@ const Puzzle: React.FC = () => {
           ></div>
         ))}
       </div>
+
+      {/* if game complete  */}
+      {isSolved() && (
+        <div className="mt-4 p-2 bg-green-600 text-white font-bold rounded">
+          Puzzle Completed!
+        </div>
+      )}
+
     </div>
   );
 };
