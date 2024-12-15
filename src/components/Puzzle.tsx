@@ -47,6 +47,7 @@ const Puzzle: React.FC = () => {
   };
 
   
+  
 
   return (
     <div className="w-full flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-900 to-cyan-800 px-6">

@@ -5,6 +5,9 @@ interface PuzzlecontextType {
   shuffledPieces: number[];
   correctPositions: number[];
   image: String;
+  score: number;
+  timer: number;
+  level: number;
   setGridSize: (size: number) => void;
   setShuffledPieces: (pieces: number[]) => void;
   isSolved: () => Boolean;
@@ -20,6 +23,9 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
   const [image, setImage] = useState("");
   const [shuffledPieces, setShuffledPieces] = useState<number[]>([]);
   const [correctPositions, setCorrectPositions] = useState<number[]>([]);
+  const [score, setScore] = useState(0);
+  const [timer, setTimer] = useState(60);
+  const [level, setLevel] = useState(1);
   const imagesArray = ["/part1.jpg"];
 
   //to generate the required pieces
@@ -55,8 +61,20 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
   const resetPuzzle = () => {
     const pieces = generatePieces(gridSize);
     setCorrectPositions(pieces);
-    setShuffledPieces(shufflePieces(pieces));
+    const shuffled = shufflePieces(pieces);
     setImage(imagesArray[Math.floor(Math.random() * imagesArray.length)]);
+    setScore(0);
+    setTimer(60);
+    setLevel(1);
+    setShuffledPieces(shuffled);
+
+    console.log(shuffled); //displays
+    console.log(pieces); //displays
+
+    localStorage.setItem(
+      "puzzleData",
+      JSON.stringify({ gridSize, shuffledPieces: shuffled, score, level })
+    );
   };
 
   useEffect(() => {
@@ -67,6 +85,20 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
   const isSolved = () =>
     JSON.stringify(shuffledPieces) === JSON.stringify(correctPositions);
 
+  //get data from localStorage
+  useEffect(() => {
+    const storedData = localStorage.getItem("puzzleData");
+    if (storedData) {
+      const data = JSON.parse(storedData);
+      setGridSize(data.gridSize);
+      setShuffledPieces(data.shuffledPieces);
+      setScore(data.score);
+      setLevel(data.level);
+    } else {
+      resetPuzzle();
+    }
+  }, []);
+
   return (
     <PuzzleContext.Provider
       value={{
@@ -74,6 +106,9 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
         shuffledPieces,
         correctPositions,
         image,
+        score,
+        timer,
+        level,
         setGridSize,
         setShuffledPieces,
         isSolved,
