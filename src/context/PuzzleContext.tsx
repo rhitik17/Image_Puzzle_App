@@ -152,7 +152,6 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
 
     //to check if the puzzle is solved
     if (JSON.stringify(updatedPieces) === JSON.stringify(correctPositions)) {
-      setFeedback("Puzzle Solved!");
       setTimer((prev) => prev);
     }
 
@@ -182,16 +181,16 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
 
         if (completionTime <= maxTime * 0.3 && incorrectMoves === 0) {
           setFeedback("Excellent!");
-          newScore += 200;
+          newScore += 2;
         } else if (completionTime <= maxTime * 0.5 && incorrectMoves <= 3) {
           setFeedback("Good job!");
-          newScore += 150;
-        } else if (completionTime <= maxTime * 0.99 && incorrectMoves <= 6) {
+          newScore += 1.5;
+        } else if (completionTime <= maxTime * 0.9 && incorrectMoves <= 6) {
           setFeedback("Well done!");
-          newScore += 100;
+          newScore += 1;
         } else {
           setFeedback("Please Try Again");
-          newScore -= 50;
+          newScore -= 0.5;
         }
 
         newlevel += 1;
@@ -258,6 +257,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const startAgain = () => {
     localStorage.clear();
+    setLevel(1);
     resetPuzzle();
   };
 
