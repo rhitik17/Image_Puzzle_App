@@ -109,7 +109,7 @@ const Puzzle: React.FC = () => {
         </div>
 
         {/* if game complete  */}
-        {isSolved() && (
+        {isSolved() && (shuffledPieces.length > 0 ) && (
           <div className="mt-4 p-2 bg-green-600 text-white font-bold rounded">
             Puzzle Completed!
           </div>

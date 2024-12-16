@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
+import { generatePieces, shufflePieces } from "../utils/utils";
 
 interface PuzzlecontextType {
   gridSize: number;
@@ -33,64 +40,91 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
   const [feedback, setFeedback] = useState("");
   const [incorrectMoves, setIncorrectMoves] = useState(0);
   const [failure, setFailure] = useState(0);
-  const imagesArray = ["/image1.jpg", "/image2.jpg"];
+  const imagesArray = ["/image1.jpeg", "/image2.jpg"];
 
-  //to generate the required pieces
-  const generatePieces = (size: number) =>
-    Array.from({ length: size * size }, (_, i) => i + 1);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  //to shuffle the pieces randomly
-  const shufflePieces = (pieces: number[]) => {
-    let shuffled = [...pieces];
-    do {
-      shuffled = shuffled.sort(() => Math.random() - 0.5);
-    } while (isSolvable(shuffled, gridSize));
+  // //to generate the required pieces
+  // const generatePieces = (size: number) =>
+  //   Array.from({ length: size * size }, (_, i) => i + 1);
 
-    return shuffled;
-  };
+  // //to shuffle the pieces randomly
+  // const shufflePieces = (pieces: number[]) => {
+  //   let shuffled = [...pieces];
+  //   do {
+  //     shuffled = shuffled.sort(() => Math.random() - 0.5);
+  //   } while (isSolvable(shuffled, gridSize));
 
-  // to check if the puzzle is solvable
-  const isSolvable = (pieces: number[], size: number) => {
-    let inversions = 0;
-    for (let i = 0; i < pieces.length; i++) {
-      for (let j = i + 1; j < pieces.length; j++) {
-        if (pieces[i] > pieces[j] && pieces[i] !== 0 && pieces[j] !== 0)
-          inversions++;
-      }
-    }
-    if (size % 2 === 0) {
-      const rowFromBottom = Math.floor(pieces.indexOf(0) / size) + 1;
-      return (rowFromBottom % 2 === 0) === (inversions % 2 === 0);
-    }
-    return inversions % 2 === 0;
-  };
+  //   return shuffled;
+  // };
+
+  // // to check if the puzzle is solvable
+  // const isSolvable = (pieces: number[], size: number) => {
+  //   let inversions = 0;
+  //   for (let i = 0; i < pieces.length; i++) {
+  //     for (let j = i + 1; j < pieces.length; j++) {
+  //       if (pieces[i] > pieces[j] && pieces[i] !== 0 && pieces[j] !== 0)
+  //         inversions++;
+  //     }
+  //   }
+  //   if (size % 2 === 0) {
+  //     const rowFromBottom = Math.floor(pieces.indexOf(0) / size) + 1;
+  //     return (rowFromBottom % 2 === 0) === (inversions % 2 === 0);
+  //   }
+  //   return inversions % 2 === 0;
+  // };
 
   const resetPuzzle = () => {
     const pieces = generatePieces(gridSize);
     setCorrectPositions(pieces);
-    const shuffled = shufflePieces(pieces);
+    const shuffled = shufflePieces(pieces, gridSize);
     setImage(imagesArray[level % imagesArray.length]);
-    // setScore(0);
-    setTimer(100 - level * 10);
-    // setLevel((prev) => prev + 1);    
     setFeedback("");
     setShuffledPieces(shuffled);
     setIncorrectMoves(0);
 
+    const time = shuffled.length * 10 - level * 2;
+    setTimer(time);
+
+    //to stop any previously running timers
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    startTimer();
     // console.log(shuffled); //displays
     // console.log(pieces); //displays
 
-    localStorage.setItem(
-      "puzzleData",
-      JSON.stringify({
-        gridSize,
-        shuffledPieces: shuffled,
-        score,
-        level,
-        incorrectMoves,
-       failure,
-      })
-    );
+    const previousStored = localStorage.getItem("puzzleData");
+    if (previousStored) {
+      const data = JSON.parse(previousStored);
+      setScore(data.score);
+
+      localStorage.setItem(
+        "puzzleData",
+        JSON.stringify({
+          gridSize,
+          shuffledPieces: shuffled,
+          score: data.score,
+          level: data.level,
+          incorrectMoves: 0,
+          failure: data.failure,
+        })
+      );
+    } else {
+      localStorage.setItem(
+        "puzzleData",
+        JSON.stringify({
+          gridSize,
+          shuffledPieces: shuffled,
+          score: 0,
+          level: 1,
+          incorrectMoves: 0,
+          failure: 0,
+        })
+      );
+    }
   };
 
   useEffect(() => {
@@ -122,26 +156,35 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
       correctPositions[index2] === updatedPieces[index2];
 
     if (
-     (( !wasPiece1CorrectBefore &&
-      !isPiece1NowCorrect) &&
-    (  !wasPiece2CorrectBefore &&
-      !isPiece2NowCorrect)) ||   (( wasPiece1CorrectBefore &&
-        !isPiece1NowCorrect) &&
-      (  wasPiece2CorrectBefore &&
-        !isPiece2NowCorrect))
+      (!wasPiece1CorrectBefore &&
+        !isPiece1NowCorrect &&
+        !wasPiece2CorrectBefore &&
+        !isPiece2NowCorrect) ||
+      (wasPiece1CorrectBefore &&
+        !isPiece1NowCorrect &&
+        wasPiece2CorrectBefore &&
+        !isPiece2NowCorrect) ||
+      (wasPiece1CorrectBefore &&
+        !isPiece1NowCorrect &&
+        !wasPiece2CorrectBefore &&
+        !isPiece2NowCorrect) ||
+      (!wasPiece1CorrectBefore &&
+        !isPiece1NowCorrect &&
+        wasPiece2CorrectBefore &&
+        !isPiece2NowCorrect)
     ) {
-        updatedIncorrectMoves += 1;
-        setIncorrectMoves(updatedIncorrectMoves);
-        setTimer((prev) => prev - 10);
+      updatedIncorrectMoves += 1;
+      setIncorrectMoves(updatedIncorrectMoves);
+      setTimer((prev) => Math.max(prev - 10, 0));
     }
 
     setShuffledPieces(updatedPieces);
 
     //to check if the puzzle is solved
     if (JSON.stringify(updatedPieces) === JSON.stringify(correctPositions)) {
-        setFeedback("Puzzle Solved!");
-        setTimer((prev) => prev);
-      }
+      setFeedback("Puzzle Solved!");
+      setTimer((prev) => prev);
+    }
 
     //saving updated state to local storage
     localStorage.setItem(
@@ -157,69 +200,100 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
     );
   };
 
+  // to display the result if solved
   useEffect(() => {
-  if (isSolved()) {
-    const completionTime = (100 - level * 10) - timer;
-    const maxTime = 100 - level * 10;
-    let newScore = score;
-    let newlevel = level;
+    if (shuffledPieces.length > 0) {
+      if (isSolved()) {
+        clearInterval(timerRef.current!);
+        const completionTime = 100 - level * 10 - timer;
+        const maxTime = 100 - level * 10;
+        let newScore = score;
+        let newlevel = level;
 
-    if (completionTime <= maxTime * 0.3 && incorrectMoves === 0) {
-      setFeedback("Excellent!");
-      newScore +=200;
-    } else if (completionTime <= maxTime * 0.5 && incorrectMoves <= 3) {
-      setFeedback("Good job!");
-      newScore += 150;
-    } else if (completionTime <= maxTime * 0.99 && incorrectMoves <= 6) {
-      setFeedback("Well done!");
-      newScore += 100;
-    } else {
-      setFeedback("Please Try Again");
-      newScore -= 50; 
-    }
+        if (completionTime <= maxTime * 0.3 && incorrectMoves === 0) {
+          setFeedback("Excellent!");
+          newScore += 200;
+        } else if (completionTime <= maxTime * 0.5 && incorrectMoves <= 3) {
+          setFeedback("Good job!");
+          newScore += 150;
+        } else if (completionTime <= maxTime * 0.99 && incorrectMoves <= 6) {
+          setFeedback("Well done!");
+          newScore += 100;
+        } else {
+          setFeedback("Please Try Again");
+          newScore -= 50;
+        }
 
-    
-    newlevel +=1;
-    setTimeout(()=>{
-        resetPuzzle();
-        setLevel(newlevel);
-    },4000)
+        newlevel += 1;
+        setTimeout(() => {
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+          }
+          resetPuzzle();
+          setLevel(newlevel);
+        }, 4000);
 
-    setScore(newScore);
-    localStorage.setItem(
-        "puzzleData",
-        JSON.stringify({
-          gridSize,
-          shuffledPieces,
-          score: newScore,
-          level:newlevel,
-          incorrectMoves,
-          failure,
-        })
-      );
-  }
-}, [shuffledPieces]); // Run this effect when shuffledPieces change
-
-
-  const startTimer = () => {
-    if (timer > 0) {
-      if (!isSolved()) {
-        setTimeout(() => setTimer(timer - 1), 1000);
-        console.log(timer);
+        setScore(newScore);
+        localStorage.setItem(
+          "puzzleData",
+          JSON.stringify({
+            gridSize,
+            shuffledPieces,
+            score: newScore,
+            level: newlevel,
+            incorrectMoves,
+            failure,
+          })
+        );
       }
-    } else {
-      setFeedback("Please Try Again");
-      setFailure((prev)=> prev + 1);
     }
+  }, [shuffledPieces]);
+
+  // function to start the timer
+  const startTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    timerRef.current = setInterval(() => {
+      setTimer((prev) => prev - 1);
+    }, 1000);
   };
 
   useEffect(() => {
-    startTimer();
+    // startTimer();
+    if (timer <= 0) {
+      clearInterval(timerRef.current!);
+      setFeedback("Time Over!");
+      setFailure((prev) => prev + 1);
+
+      setTimeout(() => {
+        resetPuzzle();
+      }, 4000);
+    }
   }, [timer]);
 
-  //get data from localStorage
+  useEffect(() => {
+    if (level <= 10) {
+      if (failure >= 3) {
+        setTimeout(() => {
+          startAgain();
+        }, 3000);
+      }
+    } else {
+      setLevel(1);
+    }
+  }, [level, failure]);
+
+  const startAgain = () => {
+    localStorage.clear();
+    resetPuzzle();
+  };
+
+  // to get data from localStorage
   useEffect(() => {
     // localStorage.clear();
+
     const storedData = localStorage.getItem("puzzleData");
     if (storedData) {
       const data = JSON.parse(storedData);
@@ -264,5 +338,3 @@ export const usePuzzleData = () => {
   if (!context) throw new Error("error occured in puzzle provider");
   return context;
 };
-
-
