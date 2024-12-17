@@ -131,7 +131,7 @@ const Puzzle: React.FC = () => {
 
   return (
     <div
-      className={`w-full h-screen flex flex-col items-center justify-center bg-gradient-to-r from-dark to-semidark px-4 md:px-6 py-10`}
+      className={`w-full  lg:h-screen flex flex-col items-center justify-center bg-gradient-to-r from-dark to-semidark px-4 md:px-6 py-10`}
     >
       <h1 className="text-3xl  text-center font-bold text-light mb-10">
         Dynamic Puzzle Game
@@ -250,14 +250,12 @@ const Puzzle: React.FC = () => {
           </div>
         </div>
 
-{/* score table */}
-        <div className=" flex  lg:w-3/12 h-full  flex-col items-center">
-                <h1 className="text-lightdark text-2xl font-semibold underline mb-6">
-                  ScoreTable:
-                </h1>
-               
-              </div>
-
+        {/* score table */}
+        <div className=" hidden lg:flex  lg:w-3/12 h-full  flex-col items-center">
+          <h1 className="text-lightdark text-2xl font-semibold underline mb-6">
+            ScoreTable:
+          </h1>
+        </div>
       </div>
       <div
         className=" px-4 py-2 mt-8 self-center bg-semidark rounded-full shadow text-light font-semibold cursor-pointer"
@@ -269,10 +267,9 @@ const Puzzle: React.FC = () => {
       {feedback && (
         <>
           <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
-            <div className="bg-semidark/90 p-1 rounded-lg shadow-lg max-w-xl w-full flex justify-center items-center py-10">
+            <div className="bg-semidark/90 p-1 rounded-lg shadow-lg max-w-sm md:max-w-xl w-full flex justify-center items-center py-10">
               {/* Feedback Section */}
               <div className=" flex  lg:w-6/12 h-full  flex-col items-center">
-               
                 {/* If game complete */}
                 {isSolved() && shuffledPieces.length > 0 && (
                   <div className="mt-4 p-4 bg-green-600 text-white font-bold rounded-xl shadow-lg transition transform duration-300 ease-in-out hover:scale-105">
@@ -286,7 +283,9 @@ const Puzzle: React.FC = () => {
                     onClick={resetPuzzle}
                   >
                     {feedback}
-                    <h2 className="font-normal text-base">You have solved in {timer} s</h2>
+                    <h2 className="font-normal text-base">
+                      You have solved in {timer} s
+                    </h2>
                   </div>
                 )}
               </div>
@@ -298,7 +297,7 @@ const Puzzle: React.FC = () => {
       {/* Modal for image preview */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
-          <div className="bg-semidark/90 p-1 rounded-lg shadow-lg max-w-xl w-full">
+          <div className="bg-semidark/90 p-1 rounded-lg shadow-lg max-w-sm md:max-w-xl w-full">
             {/* alert section */}
             {!ispreview ? (
               <div className="w-full flex flex-col items-center justify-center gap-y-6 my-10">
