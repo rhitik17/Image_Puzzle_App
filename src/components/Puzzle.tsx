@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, } from "react";
 import { usePuzzleData } from "../context/PuzzleContext";
 
 const Puzzle: React.FC = () => {
