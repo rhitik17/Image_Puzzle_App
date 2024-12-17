@@ -62,8 +62,9 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
     setShowFeedback(false);
     setShuffledPieces(shuffled);
     setIncorrectMoves(0);
+    
 
-    const time = shuffled.length * 10 - level * 2;
+    const time = shuffled?.length * 10 - level * 2;
     setTimer(time);
 
     //to stop any previously running timers
@@ -283,7 +284,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
   //for failures
   useEffect(() => {
     if (level <= 10) {
-      if (contineousfailure(failureLevels) || failureLevels.length >= 3) {
+      if (contineousfailure(failureLevels) || failureLevels?.length >= 3) {
         setFeedback("You failed to solve for 3 times");
         setShowFeedback(true);
         setTimeout(() => {
