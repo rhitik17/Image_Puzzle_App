@@ -54,6 +54,7 @@ const Puzzle: React.FC = () => {
     index: number,
     e: React.TouchEvent<HTMLDivElement>
   ) => {
+    e.preventDefault();
     if (!isSolved() && !feedback) {
       setTouchStartIndex(index);
     }
@@ -188,6 +189,7 @@ const Puzzle: React.FC = () => {
             style={{
               gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
               gridTemplateRows: `repeat(${gridSize}, 1fr)`,
+              touchAction: "none", 
             }}
           >
             {shuffledPieces.map((piece, index) => (

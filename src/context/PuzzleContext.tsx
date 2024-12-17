@@ -174,18 +174,22 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
     if (shuffledPieces.length > 0) {
       if (isSolved()) {
         clearInterval(timerRef.current!);
-        const completionTime = 100 - level * 10 - timer;
-        const maxTime = 100 - level * 10;
+        const maxTime =  shuffledPieces.length * 10 - level * 2
+        const completionTime = maxTime - timer;
+      
         let newScore = score;
         let newlevel = level;
 
         if (completionTime <= maxTime * 0.3 && incorrectMoves === 0) {
           setFeedback("Excellent!");
           newScore += 2;
+          newlevel += 1;
+
         } else if (completionTime <= maxTime * 0.5 && incorrectMoves <= 3) {
           setFeedback("Good job!");
           newScore += 1.5;
-        } else if (completionTime <= maxTime * 0.9 && incorrectMoves <= 6) {
+          newlevel += 1;
+        } else if (completionTime <= maxTime * 0.6 && incorrectMoves <= 6) {
           setFeedback("Well done!");
           newScore += 1;
         } else {
@@ -193,7 +197,6 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
           newScore -= 0.5;
         }
 
-        newlevel += 1;
         setTimeout(() => {
           if (timerRef.current) {
             clearInterval(timerRef.current);
