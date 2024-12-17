@@ -8,6 +8,7 @@ const Puzzle: React.FC = () => {
     correctPositions,
     image,
     score,
+    setScore,
     timer,
     level,
     setGridSize,
@@ -46,8 +47,7 @@ const Puzzle: React.FC = () => {
     event.preventDefault();
   };
 
-
-  //for mobile touch 
+  //for mobile touch
   const [touchStartIndex, setTouchStartIndex] = useState<number | null>(null);
 
   const handleTouchStart = (
@@ -74,7 +74,6 @@ const Puzzle: React.FC = () => {
     }
   };
 
-
   //to get background position of the draggable pieces
   const getBackgroundPosition = (index: number, size: number) => {
     const row = Math.floor(index / size);
@@ -86,13 +85,35 @@ const Puzzle: React.FC = () => {
     return `${xPosition}% ${yPosition}%`;
   };
 
-
   //for the image preview modal
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ispreview, setIspreview] = useState(false);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handlePreviewImage = () => {
+    setIspreview(true);
+
+    localStorage.setItem(
+      "puzzleData",
+      JSON.stringify({
+        gridSize,
+        shuffledPieces,
+        score: score - 1,
+        level,
+        incorrectMoves,
+        failure,
+      })
+    );
+    setScore(score - 1);
     setTimeout(() => {
+      setIspreview(false);
       setIsModalOpen(false);
     }, 5000);
   };
@@ -189,7 +210,7 @@ const Puzzle: React.FC = () => {
             style={{
               gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
               gridTemplateRows: `repeat(${gridSize}, 1fr)`,
-              touchAction: "none", 
+              touchAction: "none",
             }}
           >
             {shuffledPieces.map((piece, index) => (
@@ -229,28 +250,14 @@ const Puzzle: React.FC = () => {
           </div>
         </div>
 
-        {/* Feedback Section */}
+{/* score table */}
         <div className=" flex  lg:w-3/12 h-full  flex-col items-center">
-          <h1 className="text-lightdark text-2xl font-semibold underline mb-6">
-            Feedback:
-          </h1>
-          {/* If game complete */}
-          {isSolved() && shuffledPieces.length > 0 && (
-            <div className="mt-4 p-4 bg-green-600 text-white font-bold rounded-xl shadow-lg transition transform duration-300 ease-in-out hover:scale-105">
-              Puzzle Solved!
-            </div>
-          )}
+                <h1 className="text-lightdark text-2xl font-semibold underline mb-6">
+                  ScoreTable:
+                </h1>
+               
+              </div>
 
-          {feedback && (
-            <div
-              className="mt-4 p-4 flex flex-col justify-center items-center text-white font-bold rounded-xl shadow-lg cursor-pointer transition transform duration-300 ease-in-out scale-105"
-              onClick={resetPuzzle}
-            >
-              {feedback}
-              <h2>You have solved in {timer} s</h2>
-            </div>
-          )}
-        </div>
       </div>
       <div
         className=" px-4 py-2 mt-8 self-center bg-semidark rounded-full shadow text-light font-semibold cursor-pointer"
@@ -259,15 +266,69 @@ const Puzzle: React.FC = () => {
         Preview image
       </div>
 
+      {feedback && (
+        <>
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+            <div className="bg-semidark/90 p-1 rounded-lg shadow-lg max-w-xl w-full flex justify-center items-center py-10">
+              {/* Feedback Section */}
+              <div className=" flex  lg:w-6/12 h-full  flex-col items-center">
+               
+                {/* If game complete */}
+                {isSolved() && shuffledPieces.length > 0 && (
+                  <div className="mt-4 p-4 bg-green-600 text-white font-bold rounded-xl shadow-lg transition transform duration-300 ease-in-out hover:scale-105">
+                    Puzzle Solved!
+                  </div>
+                )}
+
+                {feedback && (
+                  <div
+                    className="mt-4 p-4 flex flex-col justify-center text-lg items-center text-white font-bold rounded-xl shadow-lg cursor-pointer transition transform duration-300 ease-in-out scale-105"
+                    onClick={resetPuzzle}
+                  >
+                    {feedback}
+                    <h2 className="font-normal text-base">You have solved in {timer} s</h2>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Modal for image preview */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-1 rounded-lg shadow-lg max-w-lg w-full">
-            <img
-              src={image}
-              alt="Puzzle Preview"
-              className="w-full h-auto rounded-md shadow-md"
-            />
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+          <div className="bg-white p-1 rounded-lg shadow-lg max-w-xl w-full">
+            {/* alert section */}
+            {!ispreview ? (
+              <div className="w-full flex flex-col items-center justify-center gap-y-6 my-10">
+                <h2 className="text-xl font-semibold">
+                  You will loose 1 score
+                </h2>
+                <div className="w-5/12 flex justify-around  gap-10">
+                  <button
+                    className="bg-lightdark text-white w-5/12 px-3 py-1 rounded-full"
+                    onClick={handleCloseModal}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="bg-lightdark text-white w-5/12  px-3 py-1 rounded-full"
+                    onClick={handlePreviewImage}
+                  >
+                    OK
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="w-full ">
+                <img
+                  src={image}
+                  alt="Puzzle Preview"
+                  className="w-full  rounded-md shadow-md"
+                />
+              </div>
+            )}
           </div>
         </div>
       )}

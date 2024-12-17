@@ -19,6 +19,7 @@ interface PuzzlecontextType {
   incorrectMoves: number;
   failure: number;
   setGridSize: (size: number) => void;
+  setScore: (size: number) => void;
   setShuffledPieces: (pieces: number[]) => void;
   isSolved: () => Boolean;
   resetPuzzle: () => void;
@@ -34,7 +35,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
   const [image, setImage] = useState("");
   const [shuffledPieces, setShuffledPieces] = useState<number[]>([]);
   const [correctPositions, setCorrectPositions] = useState<number[]>([]);
-  const [score, setScore] = useState(0);
+  const [score, setScore] = useState(3);
   const [timer, setTimer] = useState(60);
   const [level, setLevel] = useState(1);
   const [feedback, setFeedback] = useState("");
@@ -65,6 +66,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
     startTimer();
     // console.log(shuffled); //displays
     // console.log(pieces); //displays
+   
 
     const previousStored = localStorage.getItem("puzzleData");
     if (previousStored) {
@@ -88,7 +90,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
         JSON.stringify({
           gridSize,
           shuffledPieces: shuffled,
-          score: 0,
+          score: 3,
           level: 1,
           incorrectMoves: 0,
           failure: 0,
@@ -255,6 +257,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     } else {
       setLevel(1);
+      setFailure(0);
     }
   }, [level, failure]);
 
@@ -292,6 +295,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
         score,
         timer,
         level,
+        setScore,
         setGridSize,
         setShuffledPieces,
         isSolved,
