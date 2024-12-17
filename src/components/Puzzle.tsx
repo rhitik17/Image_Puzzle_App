@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, TouchEvent } from "react";
 import { usePuzzleData } from "../context/PuzzleContext";
 
 const Puzzle: React.FC = () => {
@@ -24,16 +24,57 @@ const Puzzle: React.FC = () => {
     event.dataTransfer.setData("pieceIndex", index.toString());
   };
 
-  const handleDrop = (index: number, event: React.DragEvent) => {
+  const handleDrop = (
+    index: number,
+    event: React.DragEvent | React.TouchEvent
+  ) => {
     event.preventDefault();
-    const draggedIndex = parseInt(event.dataTransfer.getData("pieceIndex"));
-    handleMove(draggedIndex, index);
+    let draggedIndex: number;
+
+    if ("dataTransfer" in event) {
+      draggedIndex = parseInt(event.dataTransfer.getData("pieceIndex"), 10);
+    } else {
+      draggedIndex = touchStartIndex as number;
+    }
+
+    if (draggedIndex !== null && draggedIndex !== undefined) {
+      handleMove(draggedIndex, index);
+    }
   };
 
   const handleDragOver = (event: React.DragEvent) => {
     event.preventDefault();
   };
 
+
+  //for mobile touch 
+  const [touchStartIndex, setTouchStartIndex] = useState<number | null>(null);
+
+  const handleTouchStart = (
+    index: number,
+    e: React.TouchEvent<HTMLDivElement>
+  ) => {
+    if (!isSolved() && !feedback) {
+      setTouchStartIndex(index);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const handleTouchEnd = (
+    dropIndex: number,
+    e: React.TouchEvent<HTMLDivElement>
+  ) => {
+    if (touchStartIndex !== null && !isSolved() && !feedback) {
+      handleDrop(dropIndex, e);
+      setTouchStartIndex(null);
+    }
+  };
+
+
+  //to get background position of the draggable pieces
   const getBackgroundPosition = (index: number, size: number) => {
     const row = Math.floor(index / size);
     const col = index % size;
@@ -44,6 +85,8 @@ const Puzzle: React.FC = () => {
     return `${xPosition}% ${yPosition}%`;
   };
 
+
+  //for the image preview modal
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => {
@@ -53,17 +96,16 @@ const Puzzle: React.FC = () => {
     }, 5000);
   };
 
-
   const [tileSize, setTileSize] = useState(500);
 
-useEffect(() => {
-  const updateSize = () => {
-    setTileSize(window.innerWidth <= 640 ? 300 : 500);
-  };
-  window.addEventListener("resize", updateSize);
-  updateSize(); 
-  return () => window.removeEventListener("resize", updateSize);
-}, []);
+  useEffect(() => {
+    const updateSize = () => {
+      setTileSize(window.innerWidth <= 640 ? 300 : 500);
+    };
+    window.addEventListener("resize", updateSize);
+    updateSize();
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
   return (
     <div
@@ -159,6 +201,10 @@ useEffect(() => {
                 }}
                 onDrop={(e) => handleDrop(index, e)}
                 onDragOver={handleDragOver}
+                // Mobile touch events
+                onTouchStart={(e) => handleTouchStart(index, e)}
+                onTouchMove={(e) => handleTouchMove(e)}
+                onTouchEnd={(e) => handleTouchEnd(index, e)}
                 className={`relative border-2 ${
                   correctPositions[index] === piece
                     ? "border-1 border-green-500"
