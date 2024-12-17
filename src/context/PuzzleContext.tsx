@@ -11,7 +11,7 @@ interface PuzzlecontextType {
   gridSize: number;
   shuffledPieces: number[];
   correctPositions: number[];
-  image: String;
+  image: string;
   score: number;
   timer: number;
   level: number;

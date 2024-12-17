@@ -11,7 +11,6 @@ const Puzzle: React.FC = () => {
     timer,
     level,
     setGridSize,
-    setShuffledPieces,
     isSolved,
     handleMove,
     resetPuzzle,
@@ -45,12 +44,7 @@ const Puzzle: React.FC = () => {
     return `${xPosition}% ${yPosition}%`;
   };
 
-  // useEffect(() => {
-  //   console.log(getBackgroundPosition(0, 2));  // 0% 0%
-  //   console.log(getBackgroundPosition(1, 2)); // 100% 0%
-  //   console.log(getBackgroundPosition(2, 2)); // 0% 100%
-  //   console.log(getBackgroundPosition(3, 2));  // 100% 100%
-  // }, []);
+
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
