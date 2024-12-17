@@ -1,4 +1,4 @@
-import React, { useState, } from "react";
+import React, { useState, useEffect } from "react";
 import { usePuzzleData } from "../context/PuzzleContext";
 
 const Puzzle: React.FC = () => {
@@ -44,34 +44,43 @@ const Puzzle: React.FC = () => {
     return `${xPosition}% ${yPosition}%`;
   };
 
-
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
-    setTimeout(()=>{
+    setTimeout(() => {
       setIsModalOpen(false);
-    },5000)
+    }, 5000);
   };
 
- 
+
+  const [tileSize, setTileSize] = useState(500);
+
+useEffect(() => {
+  const updateSize = () => {
+    setTileSize(window.innerWidth <= 640 ? 300 : 500);
+  };
+  window.addEventListener("resize", updateSize);
+  updateSize(); 
+  return () => window.removeEventListener("resize", updateSize);
+}, []);
 
   return (
     <div
-      className={`w-full h-screen flex flex-col items-center justify-center bg-gradient-to-r from-dark to-semidark px-6 py-10`}
+      className={`w-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-dark to-semidark px-4 md:px-6 py-10`}
     >
-      <h1 className="text-3xl font-bold text-light mb-10">
+      <h1 className="text-3xl  text-center font-bold text-light mb-10">
         Dynamic Puzzle Game
       </h1>
-      <div className="w-full flex justify-between gap-4 items-center">
+
+      <div className="w-full flex flex-col lg:flex-row justify-center md:justify-between max-lg:gap-y-10 gap-4 items-center">
         {/* Insights Area */}
-        <div className="w-3/12 h-full flex flex-col justify-between gap-y-6 items-center px-6 font-semibold text-white">
+        <div className="w-full lg:w-3/12 h-full flex flex-col md:max-lg:flex-row justify-between lg:gap-y-6 md:items-center lg:px-6 font-semibold text-white">
           {/* Grid Size Selector */}
-          <div className="flex items-center mb-8">
+          <div className="flex lg:flex-row items-center max-lg:gap-y-2 mb-2 lg:mb-8">
             <label
               htmlFor="gridSize"
-              className="mr-4 text-2xl font-medium text-lightdark"
+              className="mr-4 text-xl md:text-2xl font-medium text-lightdark"
             >
               Select Grid Size:
             </label>
@@ -110,7 +119,10 @@ const Puzzle: React.FC = () => {
           <div className="flex flex-col text-xl gap-y-2 text-lightdark">
             <h2>
               Incorrect Moves:
-              <span className="text-light font-semibold"> {incorrectMoves}</span>
+              <span className="text-light font-semibold">
+                {" "}
+                {incorrectMoves}
+              </span>
             </h2>
             <h2>
               Failures:
@@ -121,19 +133,19 @@ const Puzzle: React.FC = () => {
 
         {/* Puzzle Grid */}
         <div
-          className={`w-6/12 flex flex-col justify-center items-center transition-opacity duration-500 ${
+          className={`w-full lg:w-6/12 h-auto flex flex-col rounded-xl justify-center items-center  transition-opacity duration-500 ${
             isSolved() ? "opacity-100" : "opacity-100"
           } transition-transform transform ${
             isSolved() ? "scale-110" : "scale-100"
           }`}
         >
           <div
-            className="grid gap-0.5"
+            className={`grid   ${
+              isSolved() ? "gap-0" : "gap-0 md:gap-0.5"
+            } w-[300px] h-[300px] sm:w-[500px] sm:h-[500px]`}
             style={{
               gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
               gridTemplateRows: `repeat(${gridSize}, 1fr)`,
-              width: "500px",
-              height: "500px",
             }}
           >
             {shuffledPieces.map((piece, index) => (
@@ -151,10 +163,10 @@ const Puzzle: React.FC = () => {
                   correctPositions[index] === piece
                     ? "border-1 border-green-500"
                     : "border-2 border-red-500"
-                } rounde shadow-md`}
+                } rounde shadow-md `}
                 style={{
-                  width: `${500 / gridSize}px`,
-                  height: `${500 / gridSize}px`,
+                  width: `${tileSize / gridSize}px`,
+                  height: `${tileSize / gridSize}px`,
                   backgroundImage: `url(${image})`,
 
                   backgroundPosition: getBackgroundPosition(
@@ -164,17 +176,13 @@ const Puzzle: React.FC = () => {
 
                   backgroundSize: `${gridSize * 100}%`,
                 }}
-              >
-               
-              </div>
+              ></div>
             ))}
           </div>
-
-         
         </div>
 
         {/* Feedback Section */}
-        <div className="w-3/12 h-full flex flex-col items-center">
+        <div className=" flex  lg:w-3/12 h-full  flex-col items-center">
           <h1 className="text-lightdark text-2xl font-semibold underline mb-6">
             Feedback:
           </h1>
@@ -196,17 +204,17 @@ const Puzzle: React.FC = () => {
           )}
         </div>
       </div>
-      <div className=" px-4 py-2 mt-8 self-center bg-semidark rounded-full shadow text-light font-semibold cursor-pointer"
-       onClick={handleOpenModal}
+      <div
+        className=" px-4 py-2 mt-8 self-center bg-semidark rounded-full shadow text-light font-semibold cursor-pointer"
+        onClick={handleOpenModal}
       >
-            Preview image 
+        Preview image
       </div>
 
-       {/* Modal for image preview */}
-       {isModalOpen && (
+      {/* Modal for image preview */}
+      {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-1 rounded-lg shadow-lg max-w-lg w-full">
-          
             <img
               src={image}
               alt="Puzzle Preview"

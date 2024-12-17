@@ -1,0 +1,11 @@
+.responsive-tile {
+    width: calc(500px / var(--gridSize));
+    height: calc(500px / var(--gridSize));
+  }
+  
+  @media (max-width: 640px) {
+    .responsive-tile {
+      width: calc(260px / var(--gridSize));
+      height: calc(260px / var(--gridSize));
+    }
+  }
