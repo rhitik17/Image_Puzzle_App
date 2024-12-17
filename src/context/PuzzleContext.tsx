@@ -5,17 +5,23 @@ import React, {
   useEffect,
   useRef,
 } from "react";
-import { generatePieces, shufflePieces } from "../utils/utils";
+import {
+  contineousfailure,
+  generatePieces,
+  shufflePieces,
+} from "../utils/utils";
 
 interface PuzzlecontextType {
   gridSize: number;
   shuffledPieces: number[];
   correctPositions: number[];
+  failureLevels: number[];
   image: string;
   score: number;
   timer: number;
   level: number;
   feedback: string;
+  showFeedback: boolean;
   incorrectMoves: number;
   failure: number;
   setGridSize: (size: number) => void;
@@ -39,9 +45,11 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
   const [timer, setTimer] = useState(60);
   const [level, setLevel] = useState(1);
   const [feedback, setFeedback] = useState("");
+  const [showFeedback, setShowFeedback] = useState(false);
   const [incorrectMoves, setIncorrectMoves] = useState(0);
   const [failure, setFailure] = useState(0);
-  const imagesArray = ["/image1.jpeg", "/image2.jpg"];
+  const [failureLevels, setFailurelevels] = useState<number[]>([]);
+  const imagesArray = ["/image1.jpeg", "/image2.jpg", "/image3.jpg", "/image4.jpeg", "/image5.png", "/image6.png", "/image7.png", "/image8.webp", "/image9.jpg","/image10.jpg"];
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -51,6 +59,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
     const shuffled = shufflePieces(pieces, gridSize);
     setImage(imagesArray[level % imagesArray.length]);
     setFeedback("");
+    setShowFeedback(false);
     setShuffledPieces(shuffled);
     setIncorrectMoves(0);
 
@@ -66,7 +75,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
     startTimer();
     // console.log(shuffled); //displays
     // console.log(pieces); //displays
-   
+    // localStorage.clear();
 
     const previousStored = localStorage.getItem("puzzleData");
     if (previousStored) {
@@ -81,7 +90,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
           score: data.score,
           level: data.level,
           incorrectMoves: 0,
-          failure: data.failure,
+          failureLevels: data.failureLevels,
         })
       );
     } else {
@@ -93,7 +102,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
           score: 3,
           level: 1,
           incorrectMoves: 0,
-          failure: 0,
+          failureLevels: [],
         })
       );
     }
@@ -166,7 +175,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
         score,
         level,
         incorrectMoves: updatedIncorrectMoves,
-        failure,
+        failureLevels,
       })
     );
   };
@@ -176,9 +185,9 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
     if (shuffledPieces.length > 0) {
       if (isSolved()) {
         clearInterval(timerRef.current!);
-        const maxTime =  shuffledPieces.length * 10 - level * 2
+        const maxTime = shuffledPieces.length * 10 - level * 2;
         const completionTime = maxTime - timer;
-      
+
         let newScore = score;
         let newlevel = level;
 
@@ -186,7 +195,6 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
           setFeedback("Excellent!");
           newScore += 2;
           newlevel += 1;
-
         } else if (completionTime <= maxTime * 0.5 && incorrectMoves <= 3) {
           setFeedback("Good job!");
           newScore += 1.5;
@@ -198,6 +206,10 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
           setFeedback("Please Try Again");
           newScore -= 0.5;
         }
+
+        setTimeout(() => {
+          setShowFeedback(true);
+        }, 1000);
 
         setTimeout(() => {
           if (timerRef.current) {
@@ -217,7 +229,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
             score: newScore,
             level: newlevel,
             incorrectMoves,
-            failure,
+            failureLevels,
           })
         );
       }
@@ -239,7 +251,28 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
     if (timer <= 0) {
       clearInterval(timerRef.current!);
       setFeedback("Time Over!");
+      setShowFeedback(true);
       setFailure((prev) => prev + 1);
+
+      setFailurelevels((prevFailureLevels) => {
+        const updatedFailureArray = Array.isArray(prevFailureLevels)
+          ? [...prevFailureLevels, level]
+          : [level];
+
+        localStorage.setItem(
+          "puzzleData",
+          JSON.stringify({
+            gridSize,
+            shuffledPieces,
+            score,
+            level,
+            incorrectMoves,
+            failureLevels: updatedFailureArray,
+          })
+        );
+
+        return updatedFailureArray;
+      });
 
       setTimeout(() => {
         resetPuzzle();
@@ -247,13 +280,16 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [timer]);
 
+  //for failures
   useEffect(() => {
     if (level <= 10) {
-      if (failure >= 3) {
+      if (contineousfailure(failureLevels) || failureLevels.length >= 3) {
+        setFeedback("You failed to solve for 3 times");
+        setShowFeedback(true);
         setTimeout(() => {
           setFailure(0);
           startAgain();
-        }, 3000);
+        }, 4000);
       }
     } else {
       setLevel(1);
@@ -263,8 +299,11 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const startAgain = () => {
     localStorage.clear();
+    setFailurelevels([]);
+    setScore(3);
     setLevel(1);
     resetPuzzle();
+    setShowFeedback(false);
   };
 
   // to get data from localStorage
@@ -279,6 +318,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
       setShuffledPieces(data.shuffledPieces);
       setScore(data.score);
       setLevel(data.level);
+      setFailurelevels(data.failureLevels);
       console.log("shuffled Pieces:", data.shuffledPieces);
     } else {
       resetPuzzle();
@@ -295,6 +335,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
         score,
         timer,
         level,
+        failureLevels,
         setScore,
         setGridSize,
         setShuffledPieces,
@@ -302,6 +343,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
         resetPuzzle,
         handleMove,
         feedback,
+        showFeedback,
         incorrectMoves,
         failure,
       }}

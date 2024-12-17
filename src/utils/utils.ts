@@ -24,3 +24,21 @@ export   const shufflePieces = (pieces: number[], size: number) => {
     }
     return inversions % 2 === 0;
   };
+
+  export const contineousfailure = (levels : number[]) =>{
+
+    if(levels.length <3) return false;
+
+    let count = 1;
+
+    for(let i = 1; i < levels.length; i++){
+      if(levels[i]-levels[i-1]){
+        count++;
+        if(count >= 3) return true;
+      }else{
+        count = 1;
+      }
+    }
+
+ return false;
+  }

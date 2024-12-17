@@ -16,8 +16,9 @@ const Puzzle: React.FC = () => {
     handleMove,
     resetPuzzle,
     feedback,
+    showFeedback,
     incorrectMoves,
-    failure,
+    failureLevels,
   } = usePuzzleData();
 
   //for drag and drop the pieces
@@ -108,7 +109,7 @@ const Puzzle: React.FC = () => {
         score: score - 1,
         level,
         incorrectMoves,
-        failure,
+        failureLevels,
       })
     );
     setScore(score - 1);
@@ -190,7 +191,7 @@ const Puzzle: React.FC = () => {
             </h2>
             <h2>
               Failures:
-              <span className="text-light font-semibold"> {failure}</span>
+              <span className="text-light font-semibold"> {failureLevels?.length}</span>
             </h2>
           </div>
         </div>
@@ -264,7 +265,7 @@ const Puzzle: React.FC = () => {
         Preview image
       </div>
 
-      {feedback && (
+      {showFeedback && feedback && (
         <>
           <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
             <div className="bg-semidark/90 p-1 rounded-lg shadow-lg max-w-sm md:max-w-xl w-full flex justify-center items-center py-10">
@@ -277,17 +278,24 @@ const Puzzle: React.FC = () => {
                   </div>
                 )}
 
-                {feedback && (
-                  <div
-                    className="mt-4 p-4 flex flex-col justify-center text-lg items-center text-white font-bold rounded-xl shadow-lg cursor-pointer transition transform duration-300 ease-in-out scale-105"
-                    onClick={resetPuzzle}
-                  >
-                    {feedback}
+                <div
+                  className="mt-4 p-4 flex flex-col justify-center text-lg items-center text-white font-bold rounded-xl shadow-lg cursor-pointer transition transform duration-300 ease-in-out scale-105"
+                  onClick={resetPuzzle}
+                >
+                  {feedback}
+                  {feedback != "Time Over!" && feedback !="You failed to solve for 3 times" && (
                     <h2 className="font-normal text-base">
                       You have solved in {timer} s
                     </h2>
-                  </div>
-                )}
+                  )}
+                  {feedback ==="You failed to solve for 3 times" && (
+                    <h2 className="font-normal text-base">
+                  Re-starting the game.....
+                  </h2>
+                  )
+
+                  }
+                </div>
               </div>
             </div>
           </div>
