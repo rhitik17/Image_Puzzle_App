@@ -298,22 +298,22 @@ const Puzzle: React.FC = () => {
       {/* Modal for image preview */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
-          <div className="bg-white p-1 rounded-lg shadow-lg max-w-xl w-full">
+          <div className="bg-semidark/90 p-1 rounded-lg shadow-lg max-w-xl w-full">
             {/* alert section */}
             {!ispreview ? (
               <div className="w-full flex flex-col items-center justify-center gap-y-6 my-10">
-                <h2 className="text-xl font-semibold">
+                <h2 className="text-xl font-semibold text-light">
                   You will loose 1 score
                 </h2>
                 <div className="w-5/12 flex justify-around  gap-10">
                   <button
-                    className="bg-lightdark text-white w-5/12 px-3 py-1 rounded-full"
+                    className="bg-lightdark text-white w-5/12 px-3 py-1 rounded-full hover:scale-105"
                     onClick={handleCloseModal}
                   >
                     Cancel
                   </button>
                   <button
-                    className="bg-lightdark text-white w-5/12  px-3 py-1 rounded-full"
+                    className="bg-dark text-white w-5/12  px-3 py-1 rounded-full hover:scale-105"
                     onClick={handlePreviewImage}
                   >
                     OK
