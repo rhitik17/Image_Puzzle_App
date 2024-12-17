@@ -131,7 +131,7 @@ const Puzzle: React.FC = () => {
 
   return (
     <div
-      className={`w-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-dark to-semidark px-4 md:px-6 py-10`}
+      className={`w-full h-screen flex flex-col items-center justify-center bg-gradient-to-r from-dark to-semidark px-4 md:px-6 py-10`}
     >
       <h1 className="text-3xl  text-center font-bold text-light mb-10">
         Dynamic Puzzle Game
