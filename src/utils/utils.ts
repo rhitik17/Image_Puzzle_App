@@ -1,3 +1,16 @@
+
+export const customHash = (input :string) => {
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    const char = input.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; 
+  }
+  return hash.toString();
+};
+
+
+
 export   const generatePieces = (size: number) =>
     Array.from({ length: size * size }, (_, i) => i + 1);
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, TouchEvent } from "react";
 import { usePuzzleData } from "../context/PuzzleContext";
+import { useAuth } from "../context/AuthContext";
 
 const Puzzle: React.FC = () => {
   const {
@@ -20,6 +21,8 @@ const Puzzle: React.FC = () => {
     incorrectMoves,
     failureLevels,
   } = usePuzzleData();
+
+  const { logout } = useAuth();
 
   //for drag and drop the pieces
   const handleDragStart = (index: number, event: React.DragEvent) => {
@@ -130,6 +133,10 @@ const Puzzle: React.FC = () => {
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <div
       className={`w-full  lg:h-screen flex flex-col items-center justify-center bg-gradient-to-r from-dark to-semidark px-4 md:px-6 py-10`}
@@ -191,7 +198,10 @@ const Puzzle: React.FC = () => {
             </h2>
             <h2>
               Failures:
-              <span className="text-light font-semibold"> {failureLevels?.length}</span>
+              <span className="text-light font-semibold">
+                {" "}
+                {failureLevels?.length}
+              </span>
             </h2>
           </div>
         </div>
@@ -258,11 +268,22 @@ const Puzzle: React.FC = () => {
           </h1>
         </div>
       </div>
-      <div
-        className=" px-4 py-2 mt-8 self-center bg-semidark rounded-full shadow text-light font-semibold cursor-pointer"
-        onClick={handleOpenModal}
-      >
-        Preview image
+
+      <div className="flex justify-between w-full lg:w-4/12">
+        {/* image-preview */}
+        <div
+          className=" px-4 py-2 mt-8 self-center bg-semidark rounded-full shadow text-light font-semibold cursor-pointer"
+          onClick={handleOpenModal}
+        >
+          Preview image
+        </div>
+        {/* logout */}
+        <div
+          className=" px-4 py-2 mt-8 self-center bg-semidark rounded-full shadow text-light font-semibold cursor-pointer"
+          onClick={handleLogout}
+        >
+          Logout
+        </div>
       </div>
 
       {showFeedback && feedback && (
@@ -283,18 +304,17 @@ const Puzzle: React.FC = () => {
                   onClick={resetPuzzle}
                 >
                   {feedback}
-                  {feedback != "Time Over!" && feedback !="You failed to solve for 3 times" && (
+                  {feedback != "Time Over!" &&
+                    feedback != "You failed to solve for 3 times" && (
+                      <h2 className="font-normal text-base">
+                        You have solved in {timer} s
+                      </h2>
+                    )}
+                  {feedback === "You failed to solve for 3 times" && (
                     <h2 className="font-normal text-base">
-                      You have solved in {timer} s
+                      Re-starting the game.....
                     </h2>
                   )}
-                  {feedback ==="You failed to solve for 3 times" && (
-                    <h2 className="font-normal text-base">
-                  Re-starting the game.....
-                  </h2>
-                  )
-
-                  }
                 </div>
               </div>
             </div>

@@ -1,28 +1,33 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Auth from './components/Auth';
-import Puzzle from './components/Puzzle'; 
-import ProtectedRoute from './components/ProtectedRoute';
-import { PuzzleProvider } from './context/PuzzleContext';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./components/Login";
+import Puzzle from "./components/Puzzle";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { PuzzleProvider } from "./context/PuzzleContext";
+import { AuthProvider } from "./context/AuthContext";
+import Register from "./components/Register";
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Auth />} />
-        <Route
-          path="/puzzle"
-          element={
-            <ProtectedRoute>
-              <PuzzleProvider>
-
-              <Puzzle />
-              </PuzzleProvider>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+        <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/puzzle"
+            element={
+              <ProtectedRoute>
+                <PuzzleProvider>
+                  <Puzzle />
+                </PuzzleProvider>
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 };
 

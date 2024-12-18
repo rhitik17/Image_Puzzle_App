@@ -1,18 +1,32 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { Navigate, useNavigate } from "react-router-dom";
 
-const Auth: React.FC = () => {
+const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+const navigate = useNavigate();
+
+  const {login, isAuthenticated} = useAuth();
+
+useEffect(()=>{
+  if(isAuthenticated){
+    navigate("/puzzle")
+  }
+},[])
 
   const handleLogin = () => {
-    const hashedPassword = btoa(password);
-    sessionStorage.setItem(
-      "auth",
-      JSON.stringify({ username, hashedPassword })
-    );
-    alert("Logged in successfully!");
-    window.location.href = "/puzzle";
+   if(login(username, password)){
+ alert("successful login");
+ navigate("/puzzle");
+   }else{
+    alert("invalid inputs");
+   }
   };
+
+  const handleRegisterClick =()=>{
+    navigate("/register")
+  }
 
   return (
     <div className="flex flex-col items-center justify-center h-screen md:bg-gradient-to-r from-blue-900 to-cyan-800 via-gray-800 ">
@@ -46,9 +60,13 @@ const Auth: React.FC = () => {
       >
         Login
       </button>
+     <div>
+      <h2>Forgot password ? <span className="text-red-500 cursor-pointer" onClick={handleRegisterClick}>Register</span></h2>
      </div>
+     </div>
+
     </div>
   );
 };
 
-export default Auth;
+export default Login;

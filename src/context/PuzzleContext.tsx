@@ -298,7 +298,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
       setLevel(1);
       setFailure(0);
     }
-  }, [level, failure]);
+  }, [level, failureLevels]);
 
   const startAgain = () => {
     localStorage.clear();
@@ -307,12 +307,11 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
     setLevel(1);
     resetPuzzle();
     setShowFeedback(false);
+    localStorage.setItem("auth-broadcast", JSON.stringify({ type: "login" }));
   };
 
   // to get data from localStorage
   useEffect(() => {
-    // localStorage.clear();
-
     const storedData = localStorage.getItem("puzzleData");
     if (storedData) {
       const data = JSON.parse(storedData);
