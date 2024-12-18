@@ -319,7 +319,7 @@ const Puzzle: React.FC = () => {
                   {feedback != "Time Over!" &&
                     feedback != "You failed to solve for 3 times" && (
                       <h2 className="font-normal text-base">
-                        You have solved in {timer} s
+                        You have solved before {timer} s
                       </h2>
                     )}
                   {feedback === "You failed to solve for 3 times" && (
