@@ -27,11 +27,11 @@ export   const shufflePieces = (pieces: number[], size: number) => {
 
   export const contineousfailure = (levels : number[]) =>{
 
-    if(levels.length <3) return false;
+    if(levels?.length <3) return false;
 
     let count = 1;
 
-    for(let i = 1; i < levels.length; i++){
+    for(let i = 1; i < levels?.length; i++){
       if(levels[i]-levels[i-1]){
         count++;
         if(count >= 3) return true;

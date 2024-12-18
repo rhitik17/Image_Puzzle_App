@@ -284,6 +284,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
   //for failures
   useEffect(() => {
     if (level <= 10) {
+    if(failureLevels?.length > 0){
       if (contineousfailure(failureLevels) || failureLevels?.length >= 3) {
         setFeedback("You failed to solve for 3 times");
         setShowFeedback(true);
@@ -292,6 +293,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
           startAgain();
         }, 4000);
       }
+    }
     } else {
       setLevel(1);
       setFailure(0);
@@ -320,7 +322,6 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
       setScore(data.score);
       setLevel(data.level);
       setFailurelevels(data.failureLevels);
-      console.log("shuffled Pieces:", data.shuffledPieces);
     } else {
       resetPuzzle();
     }
