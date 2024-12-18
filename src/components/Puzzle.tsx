@@ -106,6 +106,7 @@ const Puzzle: React.FC = () => {
   };
 
   const handlePreviewImage = () => {
+    if(score >= 1){
     setIspreview(true);
 
     localStorage.setItem(
@@ -124,6 +125,9 @@ const Puzzle: React.FC = () => {
       setIspreview(false);
       setIsModalOpen(false);
     }, 5000);
+  }else{
+    alert("Sorry, You have no points left");
+  };
   };
 
   const [tileSize, setTileSize] = useState(500);
