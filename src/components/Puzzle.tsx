@@ -1,6 +1,9 @@
 import React, { useState, useEffect, TouchEvent } from "react";
 import { usePuzzleData } from "../context/PuzzleContext";
 import { useAuth } from "../context/AuthContext";
+import Leaderboard from "./Leaderboard";
+
+
 
 const Puzzle: React.FC = () => {
   const {
@@ -20,6 +23,7 @@ const Puzzle: React.FC = () => {
     showFeedback,
     incorrectMoves,
     failureLevels,
+    leaderboard,
   } = usePuzzleData();
 
   const { logout } = useAuth();
@@ -137,6 +141,8 @@ const Puzzle: React.FC = () => {
     logout();
   };
 
+  
+
   return (
     <div
       className={`w-full  lg:h-screen flex flex-col items-center justify-center bg-gradient-to-r from-dark to-semidark px-4 md:px-6 py-10`}
@@ -145,7 +151,7 @@ const Puzzle: React.FC = () => {
         Dynamic Puzzle Game
       </h1>
 
-      <div className="w-full flex flex-col lg:flex-row justify-center md:justify-between max-lg:gap-y-10 gap-4 items-center">
+      <div className="w-full flex flex-col lg:flex-row justify-center md:justify-between max-lg:gap-y-10  items-center">
         {/* Insights Area */}
         <div className="w-full lg:w-3/12 h-full flex flex-col md:max-lg:flex-row justify-between lg:gap-y-6 md:items-center lg:px-6 font-semibold text-white">
           {/* Grid Size Selector */}
@@ -208,7 +214,7 @@ const Puzzle: React.FC = () => {
 
         {/* Puzzle Grid */}
         <div
-          className={`w-full lg:w-6/12 h-auto flex flex-col rounded-xl justify-center items-center  transition-opacity duration-500 ${
+          className={`w-full lg:w-4/12 h-auto flex flex-col rounded-xl justify-center items-center  transition-opacity duration-500 ${
             isSolved() ? "opacity-100" : "opacity-100"
           } transition-transform transform ${
             isSolved() ? "scale-110" : "scale-100"
@@ -264,8 +270,14 @@ const Puzzle: React.FC = () => {
         {/* score table */}
         <div className=" hidden lg:flex  lg:w-3/12 h-full  flex-col items-center">
           <h1 className="text-lightdark text-2xl font-semibold underline mb-6">
-            ScoreTable:
+            LeaderBoard
           </h1>
+
+          <div>
+            <Leaderboard />
+          </div>
+
+
         </div>
       </div>
 
@@ -329,8 +341,8 @@ const Puzzle: React.FC = () => {
             {/* alert section */}
             {!ispreview ? (
               <div className="w-full flex flex-col items-center justify-center gap-y-6 my-10">
-                <h2 className="text-xl font-semibold text-light">
-                  You will loose 1 score
+                <h2 className="text-xl font-semibold text-light text-center">
+                  You will get only 5 seconds <br /> and <br /> loose 1 point
                 </h2>
                 <div className="w-5/12 flex justify-around  gap-10">
                   <button

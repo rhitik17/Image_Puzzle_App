@@ -5,14 +5,14 @@ import Puzzle from "./components/Puzzle";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { PuzzleProvider } from "./context/PuzzleContext";
 import { AuthProvider } from "./context/AuthContext";
-import Register from "./components/Register";
+
 
 const App: React.FC = () => {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-        <Route path="/register" element={<Register />} />
+     
           <Route path="/login" element={<Login />} />
           <Route
             path="/puzzle"

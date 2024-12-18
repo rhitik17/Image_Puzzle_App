@@ -16,17 +16,15 @@ useEffect(()=>{
 },[])
 
   const handleLogin = () => {
-   if(login(username, password)){
+   if(username && password && login(username, password)){
  alert("successful login");
  navigate("/puzzle");
    }else{
-    alert("invalid inputs");
+    alert("Fill the inputs");
    }
   };
 
-  const handleRegisterClick =()=>{
-    navigate("/register")
-  }
+ 
 
   return (
     <div className="flex flex-col items-center justify-center h-screen md:bg-gradient-to-r from-blue-900 to-cyan-800 via-gray-800 ">
@@ -60,9 +58,9 @@ useEffect(()=>{
       >
         Login
       </button>
-     <div>
+     {/* <div>
       <h2>Forgot password ? <span className="text-red-500 cursor-pointer" onClick={handleRegisterClick}>Register</span></h2>
-     </div>
+     </div> */}
      </div>
 
     </div>

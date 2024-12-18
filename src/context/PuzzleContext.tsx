@@ -30,6 +30,14 @@ interface PuzzlecontextType {
   isSolved: () => Boolean;
   resetPuzzle: () => void;
   handleMove: (index1: number, index2: number) => void;
+  leaderboard: LeaderboardEntry[];
+}
+
+interface LeaderboardEntry {
+  username: string;
+  score: number;
+  level: number;
+  completionTime: number;
 }
 
 const PuzzleContext = createContext<PuzzlecontextType | undefined>(undefined);
@@ -49,7 +57,19 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
   const [incorrectMoves, setIncorrectMoves] = useState(0);
   const [failure, setFailure] = useState(0);
   const [failureLevels, setFailurelevels] = useState<number[]>([]);
-  const imagesArray = ["/image1.jpeg", "/image2.jpg", "/image3.jpg", "/image4.jpeg", "/image5.png", "/image6.png", "/image7.png", "/image8.webp", "/image9.jpg","/image10.jpg"];
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const imagesArray = [
+    "/image1.jpeg",
+    "/image2.jpg",
+    "/image3.jpg",
+    "/image4.jpeg",
+    "/image5.png",
+    "/image6.png",
+    "/image7.png",
+    "/image8.webp",
+    "/image9.jpg",
+    "/image10.jpg",
+  ];
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -62,7 +82,13 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
     setShowFeedback(false);
     setShuffledPieces(shuffled);
     setIncorrectMoves(0);
-    
+
+    const leaderboardData = localStorage.getItem('leaderboard');
+    if (leaderboardData) {
+      setLeaderboard(JSON.parse(leaderboardData));
+    }else{
+      setLeaderboard([]);
+    }
 
     const time = shuffled?.length * 10 - level * 2;
     setTimer(time);
@@ -208,9 +234,38 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
           newScore -= 0.5;
         }
 
+     
+
         setTimeout(() => {
           setShowFeedback(true);
         }, 1000);
+
+        setTimeout(()=>{
+             // to store the leaderboard data
+        const username = prompt("Enter your username:");
+        if (username) {
+          const newLeaderboardEntry = {
+            username,
+            score: newScore,
+            level: newlevel,
+            completionTime: completionTime,
+          };
+
+          const storedLeaderboard = localStorage.getItem("leaderboard");
+          const leaderboard = storedLeaderboard
+            ? JSON.parse(storedLeaderboard)
+            : [];
+
+          leaderboard.push(newLeaderboardEntry);
+          leaderboard.sort(
+            (a: any, b: any) => a.completionTime - b.completionTime
+          );
+
+          localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+        }
+        },2000)
+
+        
 
         setTimeout(() => {
           if (timerRef.current) {
@@ -284,16 +339,16 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
   //for failures
   useEffect(() => {
     if (level <= 10) {
-    if(failureLevels?.length > 0){
-      if (contineousfailure(failureLevels) || failureLevels?.length >= 3) {
-        setFeedback("You failed to solve for 3 times");
-        setShowFeedback(true);
-        setTimeout(() => {
-          setFailure(0);
-          startAgain();
-        }, 4000);
+      if (failureLevels?.length > 0) {
+        if (contineousfailure(failureLevels) || failureLevels?.length >= 3) {
+          setFeedback("You failed to solve for 3 times");
+          setShowFeedback(true);
+          setTimeout(() => {
+            setFailure(0);
+            startAgain();
+          }, 4000);
+        }
       }
-    }
     } else {
       setLevel(1);
       setFailure(0);
@@ -301,17 +356,23 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [level, failureLevels]);
 
   const startAgain = () => {
-    localStorage.clear();
+    localStorage.removeItem("puzzleData");
     setFailurelevels([]);
     setScore(3);
     setLevel(1);
     resetPuzzle();
     setShowFeedback(false);
-    localStorage.setItem("auth-broadcast", JSON.stringify({ type: "login" }));
+    // localStorage.setItem("auth-broadcast", JSON.stringify({ type: "login" }));
   };
 
   // to get data from localStorage
   useEffect(() => {
+
+    const leaderboardData = localStorage.getItem('leaderboard');
+    if (leaderboardData) {
+      setLeaderboard(JSON.parse(leaderboardData));
+    }
+
     const storedData = localStorage.getItem("puzzleData");
     if (storedData) {
       const data = JSON.parse(storedData);
@@ -347,6 +408,7 @@ export const PuzzleProvider: React.FC<{ children: React.ReactNode }> = ({
         showFeedback,
         incorrectMoves,
         failure,
+        leaderboard,
       }}
     >
       {children}
