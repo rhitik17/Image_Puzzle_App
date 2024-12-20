@@ -27,7 +27,7 @@ This puzzle game application is built using **React.js**, **TypeScript**, and **
     - You Can Do Better: Finish in 50%-99% of time, 4-6 incorrect moves.
     - Please Try Again: Time runs out or >6 incorrect moves.
 - **Dynamic Timer**:
-  - Time reduces by 30 seconds per level.
+  - Time reduces as per level increases for difficulty.
   - Additional 10-second penalty per incorrect move.
 - **Level Persistence**:
   - Progress to the next puzzle after completing one.
@@ -49,12 +49,13 @@ This puzzle game application is built using **React.js**, **TypeScript**, and **
 - **Real-time Leaderboard**:
   - Displays scores, levels, and completion times.
   - Data stored in localStorage and dynamically updated.
+  - Feature to clear Leaderboard.
 - **Cross-Browser Compatibility**:
   - Ensures functionality in Chrome, Firefox, Safari, and Edge.
 
 ### 5. **Authentication**
 - **Custom Authentication System**:
-  - Simple register/login system using sessionStorage.
+  - Simple register/login and logout system using sessionStorage.
   - Persists user session across tabs.
 - **Password Hashing**:
   - Stores hashed passwords using a custom hash function.
